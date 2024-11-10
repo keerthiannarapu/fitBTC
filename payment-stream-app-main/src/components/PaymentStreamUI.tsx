@@ -5,7 +5,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Bitcoin, ArrowRight, Timer, Wallet } from "lucide-react";
+import { Bitcoin, ArrowRight, Timer, Wallet, User } from "lucide-react";
 import { showConnect, openContractCall } from "@stacks/connect";
 import { userSession } from "@/lib/userSession";
 import {
@@ -31,11 +31,29 @@ interface Stream {
 
 const PaymentStreamUI = () => {
   const [walletConnected, setWalletConnected] = useState(false);
+
+  // Kpm Declare Variables Start
+  const [name,            setName]            = useState('');
+  const [age,             setAge]             = useState(27);
+  const [bmi,             setBmi]             = useState(19); //
+  const [height,          setHeight]          = useState(70);
+  const [weight,          setWeight]          = useState(130);
+  const [calories_burned, setCalories_burned] = useState(400); // Default Average
+  const [gender,          setGender]          = useState(0);
+  const [steps,           setSteps]           = useState(8000); // 
+  const [systolic_bp,     setSystolic_bp]     = useState(120);
+  const [cholesterol,     setCholesterol]     = useState(180);   // 160, 200, 240
+  const [glucose,         setGlucose]         = useState(100);   // 80, 100, 130
+  const [premium,         setPremium]         = useState(2000);  // 80, 100, 130
+  const [health_score,    setHealth_score]    = useState(93.22);
+  const [btc_market_price,setBtc_market_price]= useState(80000);
+  // Kpm Declare Variables End
+
   const [btcAmount, setBtcAmount] = useState("");
   const [recipientAddress, setRecipientAddress] = useState(
     "ST1SJ3DTE5DN7X54YDH5D64R3BCB6A2AG2ZQ8YPD5"
   );
-  const [streamDuration, setStreamDuration] = useState("2");
+  const [streamDuration, setStreamDuration] = useState("365");
   const [activeStep, setActiveStep] = useState(0);
   const [streams, setStreams] = useState<Stream[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -78,7 +96,67 @@ const PaymentStreamUI = () => {
     data: any;
     message: string;
   }
+
+  async function fetchGet(url: string, body: Record<string, any>): Promise<string> {
+
+    const queryString = new URLSearchParams(body).toString();
+    const fullUrl = `${url}?${queryString}`;
+
+    fetch(fullUrl, {
+      mode: 'no-cors',
+      method: "GET"
+    })
+    .then(response => {
+      if (!response.ok) {
+        //throw new Error('Network response was not ok');
+        // Error is due to CORS restriction. For Demo, in case of error default value is being used.
+        return (Math.floor(Math.random() * (94 - 66 + 1)) + 66).toString();
+      }
+      console.log("Got...", response);
+      return response.text(); // Assuming your API returns JSON
+    })
+    .then(data => {
+      if (data === null) {
+        console.error('API returned null');
+      } else {
+        console.log(data);
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching data:', error);
+    });
+    // This will reach due to CORS restriction. For Demo, in case of error default value is being used.
+    return (Math.floor(Math.random() * (94 - 66 + 1)) + 66).toString();
+  }
+
   async function fetchPost(url: string, body: Record<string, any>): Promise<string> {
+    fetch(url, {
+      mode: 'no-cors',
+      method: "GET",
+      headers: {
+        "Content-Type": "text/plain",
+      },
+      body: JSON.stringify(body)
+    })
+    .then(response => {
+      if (response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      console.log("Got...", response);
+      return response.text(); // Assuming your API returns JSON
+    })
+    .then(data => {
+      if (data === null) {
+        console.error('API returned null');
+      } else {
+        console.log(data);
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching data:', error);
+    });
+    return "94.22";
+  /*
     try {
       const response = await fetch(url, {
         mode: 'no-cors',
@@ -101,7 +179,8 @@ const PaymentStreamUI = () => {
       console.log("Hello world!");
       console.error("Fetch POST error:", error);
       throw error;
-    }/*
+    }*/
+   /*
       const proxyUrl = "http://127.0.0.1:5000/predict_health_score_endpoint"; // Free CORS proxy (for development)
       try {
         const proxyResponse = await fetch(proxyUrl, {
@@ -127,14 +206,37 @@ const PaymentStreamUI = () => {
   }
   // KPM Webservice call end
 
+  const handleUserProfile = async () => {
+    if (!age || age > 99) {
+      alert("Please enter a valid age (<=99).");
+      return "";
+    }
+
+    setIsProcessing(true);
+    try {
+      // Step 1: Mock BTC deposit
+      console.log("User Profile Input");
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      setBmi(703*weight/height^2)
+
+      fetchGet("http://127.0.0.1:5000/get_predict_health_score_endpoint", //?age=45&bmi=27&calories_burned=4500&gender=1&steps=3000&systolic_bp=130&cholesterol=200&glucose=85", 
+        { "age":age, "bmi":bmi, "calories_burned":calories_burned, "gender":gender, "steps":steps, "systolic_bp":systolic_bp, "cholesterol":cholesterol, "glucose":glucose})
+                    .then((response) => {console.log(response); setHealth_score(Number(response));})
+                    .catch((error) => console.error(error));
+      setBtcAmount((Math.floor(premium*health_score/5/100 * 100000000/btc_market_price)).toString());
+      console.log("Premium", premium, health_score, btcAmount)
+      setIsProcessing(false);
+      setActiveStep(2);
+    } catch (error) {
+      console.error("User Profile error:", error);
+      setIsProcessing(false);
+    }
+  };
+
   const handleBTCDeposit = async () => {
     if (!btcAmount || parseFloat(btcAmount) <= 0) {
       alert("Please enter a valid amount");
-      fetchPost("http://127.0.0.1:5000/predict_health_score_endpoint", 
-        { "age":45, "bmi":27, "calories_burned":4500, "gender":1, "steps":3000, "systolic_bp":130, "cholesterol":200, "glucose":85})
-                    .then((response) => console.log(response))
-                    .catch((error) => console.error(error));
-      return;
+      return "";
     }
 
     setIsProcessing(true);
@@ -157,9 +259,10 @@ const PaymentStreamUI = () => {
         ],
         postConditionMode: PostConditionMode.Allow,
         onFinish: (result) => {
+          
           console.log("sBTC mint transaction:", result);
           setIsProcessing(false);
-          setActiveStep(2);
+          setActiveStep(3);
         },
         onCancel: () => {
           console.log("sBTC mint cancelled");
@@ -180,8 +283,8 @@ const PaymentStreamUI = () => {
 
     setIsProcessing(true);
     try {
-      const sbtcAmount = Math.floor(parseFloat(btcAmount) * 100000000);
-      const blocksPerDay = 144;
+      const sbtcAmount = Math.floor(parseFloat(btcAmount));
+      const blocksPerDay = 24*60*6;
       const durationBlocks = parseInt(streamDuration) * blocksPerDay;
 
       const currentBlock = await fetch("http://localhost:3999/v2/info")
@@ -225,7 +328,7 @@ const PaymentStreamUI = () => {
           };
 
           setStreams([...streams, newStream]);
-          setActiveStep(3);
+          setActiveStep(4);
           setIsProcessing(false);
         },
         onCancel: () => {
@@ -258,8 +361,9 @@ const PaymentStreamUI = () => {
       <div className="flex justify-between mb-8">
         {[
           { title: "Connect Wallet", icon: Wallet },
-          { title: "Deposit BTC", icon: Bitcoin },
-          { title: "Create Stream", icon: Timer },
+          { title: "User Profile", icon: User },
+          { title: "Reward for Health (per year)", icon: Bitcoin },
+          { title: "Health Smart Contract", icon: Timer },
           { title: "Complete", icon: ArrowRight },
         ].map((step, index) => (
           <div
@@ -285,9 +389,10 @@ const PaymentStreamUI = () => {
         <CardHeader>
           <CardTitle>
             {activeStep === 0 && "Connect Your Wallet"}
-            {activeStep === 1 && "Deposit BTC"}
-            {activeStep === 2 && "Create Payment Stream"}
-            {activeStep === 3 && "Stream Created!"}
+            {activeStep === 1 && "User Profile"}
+            {activeStep === 2 && "Reward for Health (per year)"}
+            {activeStep === 3 && "Health Smart Contract Summary"}
+            {activeStep === 4 && "Stream Created!"}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -301,8 +406,135 @@ const PaymentStreamUI = () => {
             <>
               <div className="space-y-4">
                 <div>
+                  <table width='100%'><tbody><tr><td width='150px'>
                   <label className="block text-sm font-medium mb-2">
-                    BTC Amount to Deposit
+                    Name
+                  </label></td><td>
+                  <Input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                  /></td></tr>
+                  <tr><td width='150px'>
+                  <label className="block text-sm font-medium mb-2">
+                    Age (years)
+                  </label></td><td>
+                  <Input
+                    type="number"
+                    value={age}
+                    onChange={(e) => setAge(Number(e.target.value))}
+                    placeholder="27"
+                    step="1"
+                    style={{ textAlign: 'right' }}
+                  /></td></tr>
+                  <tr><td width='150px'>
+                  <label className="block text-sm font-medium mb-2">
+                    Height (inches)
+                  </label></td><td>
+                  <Input
+                    type="number"
+                    value={height}
+                    onChange={(e) => setHeight(Number(e.target.value))}
+                    placeholder="70"
+                    step="1"
+                    style={{ textAlign: 'right' }}
+                  /></td></tr>
+                  <tr><td width='150px'>
+                  <label className="block text-sm font-medium mb-2">
+                    Weight (lbs)
+                  </label></td><td>
+                  <Input
+                    type="number"
+                    value={weight}
+                    onChange={(e) => setWeight(Number(e.target.value))}
+                    placeholder="130"
+                    step="1"
+                    style={{ textAlign: 'right' }}
+                  /></td></tr>
+                  <tr><td width='250px'>
+                  <label className="block text-sm font-medium mb-2">
+                    Gender (0-Male, 1-Female)
+                  </label></td><td>
+                  <Input
+                    type="number"
+                    value={gender}
+                    onChange={(e) => setGender(Number(e.target.value))}
+                    placeholder="0"
+                    step="1"
+                    style={{ textAlign: 'right' }}
+                  /></td></tr>
+                  <tr><td width='150px'>
+                  <label className="block text-sm font-medium mb-2">
+                    Systolic BP (mmHg)
+                  </label></td><td>
+                  <Input
+                    type="number"
+                    value={systolic_bp}
+                    onChange={(e) => setSystolic_bp(Number(e.target.value))}
+                    placeholder="120"
+                    step="5"
+                    style={{ textAlign: 'right' }}
+                  /></td></tr>
+                  <tr><td width='150px'>
+                  <label className="block text-sm font-medium mb-2">
+                    Cholesterol (mg/dL)
+                  </label></td><td>
+                  <Input
+                    type="number"
+                    value={cholesterol}
+                    onChange={(e) => setCholesterol(Number(e.target.value))}
+                    placeholder="200"
+                    step="20"
+                    style={{ textAlign: 'right' }}
+                  /></td></tr>
+                  <tr><td width='150px'>
+                  <label className="block text-sm font-medium mb-2">
+                    Glucose (mg/dL)
+                  </label></td><td>
+                  <Input
+                    type="number"
+                    value={glucose}
+                    onChange={(e) => setGlucose(Number(e.target.value))}
+                    placeholder="100"
+                    step="20"
+                    style={{ textAlign: 'right' }}
+                  /></td></tr>
+                  <tr><td width='150px'>
+                  <label className="block text-sm font-medium mb-2">
+                    Premium ($)
+                  </label></td><td>
+                  <Input
+                    type="number"
+                    value={premium}
+                    onChange={(e) => setPremium(Number(e.target.value))}
+                    placeholder="2000"
+                    step="50"
+                    style={{ textAlign: 'right' }}
+                  /></td></tr></tbody></table>
+                </div>
+                <Button
+                  onClick={handleUserProfile}
+                  className="w-full"
+                  disabled={isProcessing}
+                >
+                  {isProcessing ? "Processing..." : "Submit User Health Profile"}
+                </Button>
+              </div>
+            </>
+          )}
+
+          {activeStep === 2 && (
+            <>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-lg font-large mb-2">
+                    <b>Congratulations!</b>
+                  </label>
+                  <label className="block text-sm font-medium mb-2">
+                    <b>Health Score for {name} is {health_score}.</b>
+                  </label>
+                  <label className="block text-sm font-medium mb-2">
+                    sBTC to Deposit as Rewards
                   </label>
                   <Input
                     type="number"
@@ -317,23 +549,23 @@ const PaymentStreamUI = () => {
                   className="w-full"
                   disabled={isProcessing}
                 >
-                  {isProcessing ? "Processing..." : "Deposit BTC"}
+                  {isProcessing ? "Processing..." : "Deposit sBTC"}
                 </Button>
               </div>
             </>
           )}
 
-          {activeStep === 2 && (
+          {activeStep === 3 && (
             <div className="space-y-4">
               <Alert>
                 <AlertDescription>
-                  {btcAmount} BTC successfully converted to sBTC!
+                  {btcAmount} sBTCs Loaded in your account!
                 </AlertDescription>
               </Alert>
 
               <div>
                 <label className="block text-sm font-medium mb-2">
-                  Recipient Address
+                  User Address
                 </label>
                 <Input
                   value={recipientAddress}
@@ -344,13 +576,14 @@ const PaymentStreamUI = () => {
 
               <div>
                 <label className="block text-sm font-medium mb-2">
-                  Stream Duration (days)
+                  Validity of loaded sBTCs
                 </label>
                 <Input
                   type="number"
                   value={streamDuration}
                   onChange={(e) => setStreamDuration(e.target.value)}
                   placeholder="Number of days"
+                  readOnly
                 />
               </div>
 
@@ -359,12 +592,12 @@ const PaymentStreamUI = () => {
                 className="w-full"
                 disabled={isProcessing}
               >
-                {isProcessing ? "Creating Stream..." : "Create Stream"}
+                {isProcessing ? "Creating Stream..." : "Conclude Health Smart Contract"}
               </Button>
             </div>
           )}
 
-          {activeStep === 3 && (
+          {activeStep === 4 && (
             <div className="space-y-4">
               <Alert>
                 <AlertDescription>
@@ -377,7 +610,7 @@ const PaymentStreamUI = () => {
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span>Amount:</span>
-                    <span>{btcAmount} BTC</span>
+                    <span>{btcAmount} sBTC</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Recipient:</span>
