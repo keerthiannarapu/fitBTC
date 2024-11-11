@@ -1,8 +1,8 @@
+# fitBTC: Turning Steps into Stacks
 <p align="center">
   <img src="https://github.com/user-attachments/assets/7b572a34-354f-43b1-b317-204809415bb3" width="300" alt="image">
 </p>
 
-# fitBTC
 ## Team Members: Kunal Malhan, Keerthana Goka, Naaz Nagori, Keerthi Annarapu, Naman Sighvi
 
 # Project Overview: Google Fit Data Streaming with SIP-010 Token Rewards and Insurance Discounts
