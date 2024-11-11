@@ -1,9 +1,15 @@
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/7b572a34-354f-43b1-b317-204809415bb3" width="300" alt="image">
+</p>
+
 # fitBTC
 ## Team Members: Kunal Malhan, Keerthana Goka, Naaz Nagori, Keerthi Annarapu, Naman Sighvi
 
 # Project Overview: Google Fit Data Streaming with SIP-010 Token Rewards and Insurance Discounts
 
 This project is a robust integration of blockchain technology with health and fitness data, enabling users to track their physical activity through Google Fit data and receive token-based rewards. The tokens can then be used as an incentive for healthier lifestyles, eligibility for insurance discounts, and other benefits. Leveraging the Stacks blockchain and Clarity smart contracts, we securely store, manage, and track fitness data along with token transactions, creating a transparent and user-driven rewards ecosystem.
+
+[Link](https://www.canva.com/design/DAGWFzEnNIo/m9a4mjknNfQLZyWOfHensw/edit) to presentation on Canva
 
 ## Goals and Objectives
 The primary objectives of this project are to:
